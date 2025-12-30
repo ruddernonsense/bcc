@@ -120,7 +120,7 @@ Token tokenize_keyword(Tokenizer *tokenizer) {
 
 Token tokenize_punctuator(Tokenizer *tokenizer) {
   Token token = {0};
-  for (size_t index = 0; index < keywords_count; index++) {
+  for (size_t index = 0; index < punctuator_count; index++) {
     char *pn = punctuators[index];
     if (tk_expect(tokenizer, pn)) {
       token.token_type = tk_punctuator;
@@ -135,7 +135,33 @@ Token tokenize_punctuator(Tokenizer *tokenizer) {
   return token;
 }
 
-Token tokenize_strlit(Tokenizer *tokenizer);
+Token tokenize_strlit(Tokenizer *tokenizer) {
+  Token token = {0};
+
+  size_t length = 0;
+
+  if (tk_peek(length) == '"') {
+    length++;
+
+    while (tk_peek(length) != '"')
+      length++;
+
+    if (tk_peek(length) == '"') {
+      length++;
+      token.token_type = tk_constant;
+      token.column = tokenizer->column;
+      token.line = tokenizer->line;
+      token.raw.str = malloc(length + 3);
+      token.raw.length = length;
+      strncpy(token.raw.str, tokenizer->content.str, length);
+      token.raw.str[token.raw.length] = '\0';
+    }
+  }
+
+  printf("length: %zu\n", token.raw.length);
+
+  return token;
+}
 
 Token tokenize_identifier(Tokenizer *tokenizer) {
   Token token = {0};
@@ -158,6 +184,7 @@ Token tokenize_identifier(Tokenizer *tokenizer) {
     token.raw.length = length;
     token.raw.str = malloc(token.raw.length * sizeof(char) + 1);
     strncpy(token.raw.str, tokenizer->content.str + startb, token.raw.length);
+    token.raw.str[token.raw.length] = '\0';
   }
 
   return token;
@@ -246,7 +273,7 @@ Token tokenize_identifier(Tokenizer *tokenizer) {
 
 #warning Not standards compliant lmao
 Token tokenize_integer_constant(Tokenizer *tokenizer) {
-  Token token;
+  Token token = {0};
 
   size_t length = 0;
   while (isdigit(tk_peek(length))) {
@@ -282,7 +309,7 @@ Token tokenize_predefined_constant(Tokenizer *tokenizer) { TODO(); }
 //   | character-constant
 //   | predefined-constant
 Token tokenize_constant(Tokenizer *tokenizer) {
-  Token token;
+  Token token = {0};
 
   TRY_TOKENIZE(tokenize_integer_constant);
   TRY_TOKENIZE(tokenize_floating_constant);
@@ -333,6 +360,7 @@ Token tokenizer_next(Tokenizer *tokenizer) {
   TRY_TOKENIZE(tokenize_punctuator);
   TRY_TOKENIZE(tokenize_keyword);
   TRY_TOKENIZE(tokenize_identifier);
+  TRY_TOKENIZE(tokenize_strlit);
   TRY_TOKENIZE(tokenize_integer_constant);
 
   return token;

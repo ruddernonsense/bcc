@@ -5,6 +5,7 @@ String mk_string(char *cstr) {
   new_string.length = strlen(cstr);
   new_string.str = (char *)malloc(new_string.length * sizeof(char) + 1);
   strcpy(new_string.str, cstr);
+  new_string.str[new_string.length] = '\0';
 
   return new_string;
 }

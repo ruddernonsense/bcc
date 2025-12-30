@@ -97,6 +97,8 @@ typedef enum {
 
 char *keyword_to_str(Keyword keyword);
 
+// ordered from longest to shortest for easy maximal munch? this might be wrong
+// and might cause problems but that's a problem for future me
 #define PUNCTUATORS                                                            \
   X(concat_alt, "%:%:")                                                        \
   X(ellipsis, "...")                                                           \
@@ -202,7 +204,7 @@ typedef struct {
       } value;
     } constant;
   } content;
-  String raw; // string view into raw source code
+  String raw;
 } Token;
 
 // each scope is a dynamic array of strings pointing to typedef names?
@@ -225,6 +227,8 @@ Token tokenizer_next(Tokenizer *tokenizer);
 void tokenizer_push_typedef_scope(Tokenizer *tokenizer);
 void tokenizer_push_typedef_name(Tokenizer *tokenizer, String typedef_name);
 void tokenizer_pop_typedef_scope(Tokenizer *tokenizer);
+
+bool tk_expect(Tokenizer *tokenizer, char *str);
 
 #define tk_peek(n)                                                             \
   ((tokenizer->offset + (n) < tokenizer->content.length)                       \
