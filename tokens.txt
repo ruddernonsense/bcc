@@ -1,0 +1,272 @@
+token ::=
+  keyword
+  | identifier
+  | constant
+  | string-literal
+  | punctuator
+
+preprocessing-token ::=
+  header-name
+  | identifier
+  | pp-number
+  | character-constant
+  | string-literal
+  | punctuator
+  | "each universal-character-name that cannot be one of the above"
+  | "each non-white-space character that cannot be one of the above"
+
+//(6.4.2.1)
+nondigit ::= //one of
+  [A-Za-z_]
+
+//(6.4.2.1)
+digit ::= //one of
+  [0-9]
+
+//A.1.4 Universal character names
+//(6.4.3)
+universal-character-name ::=
+  "\u" hex-quad
+  | "\U" hex-quad hex-quad
+
+//(6.4.3)
+hex-quad ::=
+  hexadecimal-digit hexadecimal-digit hexadecimal-digit hexadecimal-digit
+
+//A.1.5 Constants
+//(6.4.4)
+constant ::=
+  integer-constant
+  | floating-constant
+  | enumeration-constant
+  | character-constant
+  | predefined-constant
+
+//(6.4.4.1)
+integer-constant ::=
+  decimal-constant integer-suffix?
+  | octal-constant integer-suffix?
+  | hexadecimal-constant integer-suffix?
+  | binary-constant integer-suffix?
+
+//(6.4.4.1)
+decimal-constant ::=
+  nonzero-digit
+  | decimal-constant "'"? digit
+
+//(6.4.4.1)
+octal-constant ::=
+  '0' octal-constant "'"? octal-digit
+
+//(6.4.4.1)
+hexadecimal-constant ::=
+  hexadecimal-prefix hexadecimal-digit-sequence
+
+//(6.4.4.1)
+binary-constant ::=
+  binary-prefix binary-digit
+  | binary-constant "'"? binary-digit
+
+//(6.4.4.1)
+hexadecimal-prefix ::= //one of
+  "0x" | "0X"
+
+//(6.4.4.1)
+binary-prefix ::= //one of
+  "0b" | "0B"
+
+//(6.4.4.1)
+nonzero-digit ::= //one of
+  [1-9]
+
+//(6.4.4.1)
+octal-digit ::= //one of
+  [0-7]
+
+hexadecimal-digit-sequence ::=
+  hexadecimal-digit
+  | hexadecimal-digit-sequence "'"? hexadecimal-digit
+
+//(6.4.4.1)
+hexadecimal-digit ::= //one of
+  [A-Fa-f0-9]
+
+//(6.4.4.1)
+binary-digit ::= //one of
+  [01]
+
+//(6.4.4.1)
+integer-suffix ::=
+  unsigned-suffix long-suffix?
+  | unsigned-suffix long-long-suffix
+  | unsigned-suffix bit-precise-int-suffix
+  | long-suffix unsigned-suffix?
+  | long-long-suffix unsigned-suffix?
+  | bit-precise-int-suffix unsigned-suffix?
+
+//(6.4.4.1)
+bit-precise-int-suffix ::= //one of
+  "wb" | "WB"
+
+//(6.4.4.1)
+unsigned-suffix ::= //one of
+  'u' | 'U'
+
+//(6.4.4.1)
+long-suffix ::= //one of
+  'l' | 'L'
+
+//(6.4.4.1)
+long-long-suffix ::= //one of
+  "ll" | "LL"
+
+//(6.4.4.2)
+floating-constant ::=
+  decimal-floating-constant
+  | hexadecimal-floating-constant
+
+//(6.4.4.2)
+decimal-floating-constant ::=
+  fractional-constant exponent-part? floating-suffix?
+  | digit-sequence exponent-part floating-suffix?
+
+//(6.4.4.2)
+hexadecimal-floating-constant ::=
+  hexadecimal-prefix hexadecimal-fractional-constant
+    binary-exponent-part floating-suffix?
+  | hexadecimal-prefix hexadecimal-digit-sequence
+    binary-exponent-part floating-suffix?
+
+//(6.4.4.2)
+fractional-constant ::=
+  digit-sequence? '.' digit-sequence
+  | digit-sequence '.'
+
+//(6.4.4.2)
+exponent-part ::=
+  [Ee] sign? digit-sequence
+
+//(6.4.4.2)
+sign ::= //one of
+  [+-]
+
+//(6.4.4.2)
+digit-sequence ::=
+  digit
+  | digit-sequence "'"? digit
+
+//(6.4.4.2)
+hexadecimal-fractional-constant ::=
+  hexadecimal-digit-sequence? '.' hexadecimal-digit-sequence
+  | hexadecimal-digit-sequence '.'
+
+//(6.4.4.2)
+binary-exponent-part ::=
+  [Pp] sign? digit-sequence
+
+//(6.4.4.2)
+floating-suffix ::= //one of
+  "fl" | "FL" | "df" | "dd" | "dl" | "DF" | "DD" | "DL"
+
+//(6.4.4.3)
+enumeration-constant ::=
+  identifier
+
+//(6.4.4.4)
+character-constant ::=
+  encoding-prefix? "'" c-char-sequence "'"
+
+//(6.4.4.4)
+encoding-prefix ::= //one of
+  "u8" | "u" | "U" | "L"
+
+//(6.4.4.4)
+c-char-sequence ::=
+  c-char
+  | c-char-sequence c-char
+
+//(6.4.4.4)
+c-char ::=
+  "any member of the source character set except the single-quote ', backslash \, or new-line character"
+  | escape-sequence
+
+//(6.4.4.4)
+escape-sequence ::=
+  simple-escape-sequence
+  | octal-escape-sequence
+  | hexadecimal-escape-sequence
+  | universal-character-name
+
+//(6.4.4.4)
+simple-escape-sequence ::= //one of
+   "\'" | '\"' | "\?" | "\\" | "\a" | "\b" | "\f" | "\n" | "\r" | "\t" | "\v"
+
+//(6.4.4.4)
+octal-escape-sequence ::=
+  '\' octal-digit
+  | '\' octal-digit octal-digit
+  | '\' octal-digit octal-digit octal-digit
+
+//(6.4.4.4)
+hexadecimal-escape-sequence ::=
+  "\x" hexadecimal-digit
+  | hexadecimal-escape-sequence hexadecimal-digit
+
+//(6.4.4.5)
+predefined-constant ::=
+  "false"
+  | "true"
+  | "nullptr"
+
+//A.1.6 String literals
+//(6.4.5)
+string-literal ::=
+  encoding-prefix? '"' s-char-sequence? '"'
+
+//(6.4.5)
+s-char-sequence ::=
+  s-char
+  | s-char-sequence s-char
+
+//(6.4.5)
+s-char ::=
+  'any member of the source character set except the double-quote ", backslash \, or new-line character'
+  | escape-sequence
+
+//A.1.8 Header names
+//(6.4.7)
+header-name ::=
+  '<' h-char-sequence '>'
+  | '"' q-char-sequence '"'
+
+//(6.4.7)
+h-char-sequence ::=
+  h-char
+  | h-char-sequence h-char
+
+//(6.4.7)
+h-char ::=
+  "any member of the source character set except the new-line character and >"
+
+//(6.4.7)
+q-char-sequence ::=
+  q-char
+  | q-char-sequence q-char
+
+//(6.4.7)
+q-char ::=
+  "any member of the source character set except the new-line character and "
+
+//A.1.9 Preprocessing numbers
+//(6.4.8)
+pp-number ::=
+  digit
+  | '.' digit
+  | pp-number identifier-continue
+  | pp-number "'" digit
+  | pp-number "'" nondigit
+  | pp-number 'e' sign
+  | pp-number 'E' sign
+  | pp-number 'p' sign
+  | pp-number 'P' sign
+  | pp-number '.'
